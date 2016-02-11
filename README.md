@@ -12,7 +12,7 @@ See https://smappee.atlassian.net/wiki/display/DEVAPI/API+Methods
 Re-authentication using the refresh token is done automatically when the authorization token has expired.
 
 ## API Requests
-4 API requests are supported:
+4 API requests are supported. The methods return the parsed JSON response as a dict.
 
 ### Get Service Locations
 `s.get_service_locations()` 
@@ -29,3 +29,13 @@ Aggregation: 1 = 5 min values (only available for the last 14 days), 2 = hourly 
 
 ### Get Events
 `s.get_events(service_location_id, appliance_id, start, end, max_number)`
+
+# Future
+Future development may include:
+
+'Authorization key only'-mode. For when you don't have direct access to user names passwords or even client id and secret.
+When the python part of your code is running as a job in the back-end for example.
+
+Request error catching and handling.
+
+Output consumption as Pandas Dataframe
