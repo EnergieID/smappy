@@ -1,0 +1,1 @@
+from smappy.smappy import Smappee
