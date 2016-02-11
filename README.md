@@ -30,6 +30,11 @@ Aggregation: 1 = 5 min values (only available for the last 14 days), 2 = hourly 
 ### Get Events
 `s.get_events(service_location_id, appliance_id, start, end, max_number)`
 
+## Consumption as Pandas DataFrame
+`s.get_consumption_dataframe(service_location_id, start, end, aggregation, localize)`
+
+Same usage as `get_consumption`, but returns a Pandas DataFrame. Use the localize flag to get localized timestamps.
+
 # Future
 Future development may include:
 
@@ -37,5 +42,3 @@ Future development may include:
 When the python part of your code is running as a job in the back-end for example.
 
 Request error catching and handling.
-
-Output consumption as Pandas Dataframe

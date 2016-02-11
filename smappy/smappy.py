@@ -1,8 +1,9 @@
 import requests
 import datetime as dt
+import pandas as pd
 
 __title__ = "smappy"
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 __author__ = "EnergieID.be"
 __license__ = "MIT"
 
@@ -130,7 +131,7 @@ class Smappee(object):
         return r.json()
 
     @authenticated
-    def get_service_location_info(self, service_location_id):
+    def get_service_location_info(self, service_location_id, **kwargs):
         """
         Request service location info
 
@@ -227,6 +228,35 @@ class Smappee(object):
         See https://smappee.atlassian.net/wiki/display/DEVAPI/Actuator+OFF
         """
         raise NotImplementedError()
+
+    def get_consumption_dataframe(self, localize=False, **kwargs):
+        """
+        Extends get_consumption(), parses the results in a Pandas DataFrame
+
+        Parameters
+        ----------
+        localize : bool (optional, default False)
+            default returns timestamps in UTC
+            if True, timezone is fetched from service location info and Data Frame is localized
+        kwargs : arguments for get_consumption()
+            service_location_id
+            start
+            end
+            aggregation
+
+        Returns
+        -------
+        Pandas DataFrame
+        """
+        consumptions = self.get_consumption(**kwargs)['consumptions']
+
+        df = pd.DataFrame.from_dict(consumptions)
+        df.set_index('timestamp', inplace=True)
+        df.index = pd.to_datetime(df.index, unit='ms', utc=True)
+        if localize:
+            timezone = self.get_service_location_info(**kwargs)['timezone']
+            df = df.tz_convert(timezone)
+        return df
 
     def _to_milliseconds(self, time):
         """
