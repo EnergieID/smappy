@@ -1,11 +1,10 @@
+import requests
+import datetime as dt
+
 __title__ = "smappy"
 __version__ = "0.0.2"
 __author__ = "EnergieID.be"
 __license__ = "MIT"
-
-import requests
-import datetime as dt
-
 
 URLS = {
     'token': 'https://app1pub.smappee.net/dev/v1/oauth2/token',
