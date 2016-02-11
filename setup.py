@@ -21,7 +21,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 # Get the version from the source code
-with open(path.join(here, 'smappy', '__init__.py'), encoding='utf-8') as f:
+with open(path.join(here, 'smappy', 'smappy.py'), encoding='utf-8') as f:
     lines = f.readlines()
     for l in lines:
         if l.startswith('__version__'):
