@@ -4,12 +4,12 @@ API wrapper for Smappee
 See https://smappee.atlassian.net/wiki/display/DEVAPI/API+Methods
 
 ## Create a new connection by supplying your Smappee client id and secret
-`s = smappy.Smappee(client_id='<your client id>', client_secret='<your client secret>')`
+`s = smappy.Smappee(client_id, client_secret)`
 
 ## Authenticate using a Smappee username and password
-`s.authenticate(username='<your username>', password='<your password>')`
+`s.authenticate(username, password)`
 
-Re-authentication using the refresh token is done automatically when the authorization token has expired.
+Re-authentication using the refresh token is done automatically when the access token has expired.
 
 ## API Requests
 4 API requests are supported. The methods return the parsed JSON response as a dict.
@@ -35,10 +35,18 @@ Aggregation: 1 = 5 min values (only available for the last 14 days), 2 = hourly 
 
 Same usage as `get_consumption`, but returns a Pandas DataFrame. Use the localize flag to get localized timestamps.
 
+# Simple Smappee
+If you have no client id, client secret, refresh token etc, for instance if everything concerning oAuth is handed off
+to a different process like a web layer. This object only uses a given access token. It has no means of refreshing it
+when it expires, in which case the requests will raise errors.
+
+`ss = SimpleSmappee(access_token)`
+
+It has the same methods as the normal Smappee class, except authorization and re-authorization will not work.
+
 # Future
 Future development may include:
 
-'Authorization key only'-mode. For when you don't have direct access to user names passwords or even client id and secret.
-When the python part of your code is running as a job in the back-end for example.
-
 Request error catching and handling.
+
+Implementation of the actuator methods

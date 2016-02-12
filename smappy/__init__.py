@@ -1,1 +1,1 @@
-from smappy.smappy import Smappee
+from smappy.smappy import Smappee, SimpleSmappee

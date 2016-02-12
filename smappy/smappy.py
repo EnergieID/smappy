@@ -3,7 +3,7 @@ import datetime as dt
 import pandas as pd
 
 __title__ = "smappy"
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 __author__ = "EnergieID.be"
 __license__ = "MIT"
 
@@ -15,12 +15,12 @@ URLS = {
 
 def authenticated(func):
     """
-    Decorator to check if Smappee's authorization token has expired. If it has, use the refresh token to request a new
-    authorization token
+    Decorator to check if Smappee's access token has expired. If it has, use the refresh token to request a new
+    access token
     """
     def wrapper(*args, **kwargs):
         self = args[0]
-        if self.token_expiration_time >= dt.datetime.utcnow():
+        if self.refresh_token is not None and self.token_expiration_time >= dt.datetime.utcnow():
             self.re_authenticate()
         return func(*args, **kwargs)
     return wrapper
@@ -48,7 +48,7 @@ class Smappee(object):
 
     def authenticate(self, username, password):
         """
-        Uses a Smappee username and password to request an authorization token, refresh token and expiry date
+        Uses a Smappee username and password to request an access token, refresh token and expiry date
 
         Parameters
         ----------
@@ -94,7 +94,7 @@ class Smappee(object):
 
     def re_authenticate(self):
         """
-        Uses the refresh token to request a new authorization token, refresh token and expiration date
+        Uses the refresh token to request a new access token, refresh token and expiration date
 
         Returns
         -------
@@ -276,3 +276,20 @@ class Smappee(object):
             return time
         else:
             raise NotImplementedError("Time format not supported. Use epochs, Datetime or Pandas Datetime")
+
+
+class SimpleSmappee(Smappee):
+    """
+    Object to use if you have no client id, client secret, refresh token etc, for instance if everything concerning
+    oAuth is handed off to a different process like a web layer.
+    This object only uses a given access token. It has no means of refreshing it when it expires, in which case
+    the requests will return errors.
+    """
+    def __init__(self, access_token):
+        """
+        Parameters
+        ----------
+        access_token : str
+        """
+        super(SimpleSmappee, self).__init__(client_id=None, client_secret=None)
+        self.access_token = access_token
