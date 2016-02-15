@@ -3,7 +3,7 @@ import datetime as dt
 import pandas as pd
 
 __title__ = "smappy"
-__version__ = "0.0.4"
+__version__ = "0.1.0"
 __author__ = "EnergieID.be"
 __license__ = "MIT"
 
@@ -20,7 +20,7 @@ def authenticated(func):
     """
     def wrapper(*args, **kwargs):
         self = args[0]
-        if self.refresh_token is not None and self.token_expiration_time >= dt.datetime.utcnow():
+        if self.refresh_token is not None and self.token_expiration_time <= dt.datetime.utcnow():
             self.re_authenticate()
         return func(*args, **kwargs)
     return wrapper
