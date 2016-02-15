@@ -3,7 +3,7 @@ import datetime as dt
 import pandas as pd
 
 __title__ = "smappy"
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __author__ = "EnergieID.be"
 __license__ = "MIT"
 
@@ -71,6 +71,8 @@ class Smappee(object):
             "password": password
         }
         r = requests.post(url, data=data)
+        if r.status_code != 200:
+            raise requests.HTTPError(r.status_code, url, data)
         j = r.json()
         self.access_token = j['access_token']
         self.refresh_token = j['refresh_token']
@@ -111,6 +113,8 @@ class Smappee(object):
             "client_secret": self.client_secret
         }
         r = requests.post(url, data=data)
+        if r.status_code != 200:
+            raise requests.HTTPError(r.status_code, url, data)
         j = r.json()
         self.access_token = j['access_token']
         self.refresh_token = j['refresh_token']
@@ -128,6 +132,8 @@ class Smappee(object):
         url = URLS['servicelocation']
         headers = {"Authorization": "Bearer {}".format(self.access_token)}
         r = requests.get(url, headers=headers)
+        if r.status_code != 200:
+            raise requests.HTTPError(r.status_code, url, headers)
         return r.json()
 
     @authenticated
@@ -146,6 +152,8 @@ class Smappee(object):
         url = URLS['servicelocation'] + "/{}/info".format(service_location_id)
         headers = {"Authorization": "Bearer {}".format(self.access_token)}
         r = requests.get(url, headers=headers)
+        if r.status_code != 200:
+            raise requests.HTTPError(r.status_code, url, headers)
         return r.json()
 
     @authenticated
@@ -180,6 +188,8 @@ class Smappee(object):
             "to": end
         }
         r = requests.get(url, headers=headers, params=params)
+        if r.status_code != 200:
+            raise requests.HTTPError(r.status_code, url, headers, params)
         return r.json()
 
     @authenticated
@@ -213,6 +223,8 @@ class Smappee(object):
             "maxNumber": max_number
         }
         r = requests.get(url, headers=headers, params=params)
+        if r.status_code != 200:
+            raise requests.HTTPError(r.status_code, url, headers, params)
         return r.json()
 
     def actuator_on(self):
