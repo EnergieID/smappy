@@ -21,8 +21,8 @@ Re-authentication using the refresh token is done automatically when the access 
 `s.get_service_location_info(service_location_id)`
 
 ### Get Consumption
-`s.get_consumption(service_location_id, start, end, aggregation)`
-`s.get_sensor_consumption(service_location_id, sensor_id, start, end, aggregation)`
+- `s.get_consumption(service_location_id, start, end, aggregation)`
+- `s.get_sensor_consumption(service_location_id, sensor_id, start, end, aggregation)`
 
 Start & End accept epoch (in milliseconds), datetime and pandas timestamps
 
