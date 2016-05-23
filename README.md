@@ -22,7 +22,7 @@ Re-authentication using the refresh token is done automatically when the access 
 
 ### Get Consumption
 `s.get_consumption(service_location_id, start, end, aggregation)`
-`s.get_consumption(service_location_id, sensor_id, start, end, aggregation)`
+`s.get_sensor_consumption(service_location_id, sensor_id, start, end, aggregation)`
 
 Start & End accept epoch (in milliseconds), datetime and pandas timestamps
 
@@ -33,17 +33,23 @@ Aggregation: 1 = 5 min values (only available for the last 14 days), 2 = hourly 
 
 ### Actuators
 NOTE: These methods are untested, so please provide feeback if you are using them, successfully or otherwise.
-`s.actuator_on(self, service_location_id, actuator_id, duration)`
-`s.actuator_off(self, service_location_id, actuator_id, duration)`
+
+- `s.actuator_on(self, service_location_id, actuator_id, duration)`
+- `s.actuator_off(self, service_location_id, actuator_id, duration)`
 
 duration = 300,900,1800 or 3600 , specifying the time in seconds the actuator
 should be turned on or off. Any other value results in turning on or off for an
 undetermined period of time.
 
 ## Consumption as Pandas DataFrame
-`s.get_consumption_dataframe(service_location_id, start, end, aggregation, localize)`
+Get consumption values in a Pandas Data Frame
 
-Same usage as `get_consumption`, but returns a Pandas DataFrame. Use the localize flag to get localized timestamps.
+- To get total Electricity consumption and Solar production, use:
+`s.get_consumption_dataframe(service_location_id, start, end, aggregation, localize)`
+-  To get consumption for a specific sensor, include a sensor id:
+`s.get_consumption_dataframe(service_location_id, start, end, aggregation, localize, sensor_id)`
+
+Use the localize flag to get localized timestamps.
 
 # Simple Smappee
 If you have no client id, client secret, refresh token etc, for instance if everything concerning oAuth is handed off

@@ -3,7 +3,7 @@ import datetime as dt
 import pandas as pd
 
 __title__ = "smappy"
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 __author__ = "EnergieID.be"
 __license__ = "MIT"
 
@@ -37,8 +37,10 @@ class Smappee(object):
 
         Parameters
         ----------
-        client_id : str
-        client_secret : str
+        client_id : str or None
+        client_secret : str or None
+            If None, you won't be able to do any authorisation, so it requires that you already have an access token
+            somewhere. In that case, the SimpleSmappee class is something for you.
         """
         self.client_id = client_id
         self.client_secret = client_secret
@@ -137,7 +139,7 @@ class Smappee(object):
         return r.json()
 
     @authenticated
-    def get_service_location_info(self, service_location_id, **kwargs):
+    def get_service_location_info(self, service_location_id):
         """
         Request service location info
 
@@ -159,7 +161,7 @@ class Smappee(object):
     @authenticated
     def get_consumption(self, service_location_id, start, end, aggregation):
         """
-        Request consumption for a given service location
+        Request Elektricity consumption and Solar production for a given service location
 
         Parameters
         ----------
@@ -341,33 +343,45 @@ class Smappee(object):
             raise requests.HTTPError(r.status_code, url, headers, data)
         return
 
-    def get_consumption_dataframe(self, localize=False, **kwargs):
+    def get_consumption_dataframe(self, service_location_id, start, end, aggregation, sensor_id=None, localize=False):
         """
-        Extends get_consumption(), parses the results in a Pandas DataFrame
+        Extends get_consumption() AND get_sensor_consumption(), parses the results in a Pandas DataFrame
 
         Parameters
         ----------
+        service_location_id : int
+        start : datetime
+        end : datetime
+        aggregation : int (1 to 5)
+        sensor_id : int (optional)
+            If a sensor id is passed, api method get_sensor_consumption will be used
+            otherwise (by default), the get_consumption method will be used: this returns Electricity and Solar
+            consumption and production.
         localize : bool (optional, default False)
             default returns timestamps in UTC
             if True, timezone is fetched from service location info and Data Frame is localized
-        kwargs : arguments for get_consumption()
-            service_location_id
-            start
-            end
-            aggregation
 
         Returns
         -------
         Pandas DataFrame
         """
-        consumptions = self.get_consumption(**kwargs)['consumptions']
+        if sensor_id is None:
+            data = self.get_consumption(service_location_id=service_location_id, start=start, end=end,
+                                        aggregation=aggregation)
+            consumptions = data['consumptions']
+        else:
+            data = self.get_sensor_consumption(service_location_id=service_location_id, sensor_id=sensor_id,
+                                               start=start, end=end, aggregation=aggregation)
+            consumptions = data['records']  # yeah please someone explain me why they had to name this differently...
 
         df = pd.DataFrame.from_dict(consumptions)
-        df.set_index('timestamp', inplace=True)
-        df.index = pd.to_datetime(df.index, unit='ms', utc=True)
-        if localize:
-            timezone = self.get_service_location_info(**kwargs)['timezone']
-            df = df.tz_convert(timezone)
+        if not df.empty:
+            df.set_index('timestamp', inplace=True)
+            df.index = pd.to_datetime(df.index, unit='ms', utc=True)
+            if localize:
+                info = self.get_service_location_info(service_location_id=service_location_id)
+                timezone = info['timezone']
+                df = df.tz_convert(timezone)
         return df
 
     def _to_milliseconds(self, time):
