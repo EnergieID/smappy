@@ -3,7 +3,7 @@ import datetime as dt
 import pandas as pd
 
 __title__ = "smappy"
-__version__ = "0.1.4"
+__version__ = "0.2.0"
 __author__ = "EnergieID.be"
 __license__ = "MIT"
 
