@@ -3,7 +3,7 @@ import datetime as dt
 import pandas as pd
 
 __title__ = "smappy"
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 __author__ = "EnergieID.be"
 __license__ = "MIT"
 
@@ -227,19 +227,77 @@ class Smappee(object):
             raise requests.HTTPError(r.status_code, url, headers, params)
         return r.json()
 
-    def actuator_on(self):
+    @authenticated
+    def actuator_on(self, service_location_id, actuator_id, duration=None):
         """
-        Not (yet) implemented
-        See https://smappee.atlassian.net/wiki/display/DEVAPI/Actuator+ON
-        """
-        raise NotImplementedError()
+        NOT TESTED
+        Turn actuator on
 
-    def actuator_off(self):
+        Parameters
+        ----------
+        service_location_id : int
+        actuator_id : int
+        duration : int
+            300,900,1800 or 3600 , specifying the time in seconds the actuator
+            should be turned on. Any other value results in turning on for an
+            undetermined period of time.
+
+        Returns
+        -------
+        Nothing
         """
-        Not (yet) implemented
-        See https://smappee.atlassian.net/wiki/display/DEVAPI/Actuator+OFF
+        return self._actuator_on_off(on_off='on', service_location_id=service_location_id, actuator_id=actuator_id,
+                                     duration=duration)
+
+    @authenticated
+    def actuator_off(self, service_location_id, actuator_id, duration=None):
         """
-        raise NotImplementedError()
+        NOT TESTED
+        Turn actuator off
+
+        Parameters
+        ----------
+        service_location_id : int
+        actuator_id : int
+        duration : int
+            300,900,1800 or 3600 , specifying the time in seconds the actuator
+            should be turned on. Any other value results in turning on for an
+            undetermined period of time.
+
+        Returns
+        -------
+        Nothing
+        """
+        return self._actuator_on_off(on_off='off', service_location_id=service_location_id, actuator_id=actuator_id,
+                                     duration=duration)
+
+    def _actuator_on_off(self, on_off, service_location_id, actuator_id, duration=None):
+        """
+            NOT TESTED
+            Turn actuator on or off
+
+            Parameters
+            ----------
+            on_off : str
+                'on' or 'off'
+            service_location_id : int
+            actuator_id : int
+            duration : int
+                300,900,1800 or 3600 , specifying the time in seconds the actuator
+                should be turned on. Any other value results in turning on for an
+                undetermined period of time.
+
+            Returns
+            -------
+            Nothing
+            """
+        url = URLS['servicelocation'] + "/{}/actuator/{}/{}".format(service_location_id, actuator_id, on_off)
+        headers = {"Authorization": "Bearer {}".format(self.access_token)}
+        data = {"duration": duration}
+        r = requests.post(url, headers=headers, data=data)
+        if r.status_code != 200:
+            raise requests.HTTPError(r.status_code, url, headers, data)
+        return
 
     def get_consumption_dataframe(self, localize=False, **kwargs):
         """

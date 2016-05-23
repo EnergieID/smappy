@@ -12,7 +12,7 @@ See https://smappee.atlassian.net/wiki/display/DEVAPI/API+Methods
 Re-authentication using the refresh token is done automatically when the access token has expired.
 
 ## API Requests
-4 API requests are supported. The methods return the parsed JSON response as a dict.
+6 API requests are supported. The methods return the parsed JSON response as a dict.
 
 ### Get Service Locations
 `s.get_service_locations()` 
@@ -29,6 +29,15 @@ Aggregation: 1 = 5 min values (only available for the last 14 days), 2 = hourly 
 
 ### Get Events
 `s.get_events(service_location_id, appliance_id, start, end, max_number)`
+
+### Actuators
+NOTE: These methods are untested, so please provide feeback if you are using them, successfully or otherwise.
+`s.actuator_on(self, service_location_id, actuator_id, duration)`
+`s.actuator_off(self, service_location_id, actuator_id, duration)`
+
+duration = 300,900,1800 or 3600 , specifying the time in seconds the actuator
+should be turned on or off. Any other value results in turning on or off for an
+undetermined period of time.
 
 ## Consumption as Pandas DataFrame
 `s.get_consumption_dataframe(service_location_id, start, end, aggregation, localize)`
