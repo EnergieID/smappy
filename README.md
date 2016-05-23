@@ -12,7 +12,7 @@ See https://smappee.atlassian.net/wiki/display/DEVAPI/API+Methods
 Re-authentication using the refresh token is done automatically when the access token has expired.
 
 ## API Requests
-6 API requests are supported. The methods return the parsed JSON response as a dict.
+7 API requests are supported. The methods return the parsed JSON response as a dict.
 
 ### Get Service Locations
 `s.get_service_locations()` 
@@ -22,6 +22,7 @@ Re-authentication using the refresh token is done automatically when the access 
 
 ### Get Consumption
 `s.get_consumption(service_location_id, start, end, aggregation)`
+`s.get_consumption(service_location_id, sensor_id, start, end, aggregation)`
 
 Start & End accept epoch (in milliseconds), datetime and pandas timestamps
 
@@ -57,5 +58,3 @@ It has the same methods as the normal Smappee class, except authorization and re
 Future development may include:
 
 Request error catching and handling.
-
-Implementation of the actuator methods
