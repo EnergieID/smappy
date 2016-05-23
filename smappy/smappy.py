@@ -3,7 +3,7 @@ import datetime as dt
 import pandas as pd
 
 __title__ = "smappy"
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 __author__ = "EnergieID.be"
 __license__ = "MIT"
 
@@ -177,10 +177,52 @@ class Smappee(object):
         -------
         dict
         """
+        url = URLS['servicelocation'] + "/{}/consumption".format(service_location_id)
+        return self._get_consumption(url=url, start=start, end=end, aggregation=aggregation)
+
+    @authenticated
+    def get_sensor_consumption(self, service_location_id, sensor_id, start, end, aggregation):
+        """
+        Request consumption for a given sensor in a given service location
+
+        Parameters
+        ----------
+        service_location_id : int
+        sensor_id : int
+        start : datetime-like object (supports epoch, datetime and Pandas Timestamp)
+        end : datetime-like object (supports epoch, datetime and Pandas Timestamp)
+        aggregation : int (1 to 5)
+            1 = 5 min values (only available for the last 14 days)
+            2 = hourly values
+            3 = daily values
+            4 = monthly values
+            5 = quarterly values
+
+        Returns
+        -------
+        dict
+        """
+        url = URLS['servicelocation'] + "/{}/sensor/{}/consumption".format(service_location_id, sensor_id)
+        return self._get_consumption(url=url, start=start, end=end, aggregation=aggregation)
+
+    def _get_consumption(self, url, start, end, aggregation):
+        """
+        Request for both the get_consumption and get_sensor_consumption methods.
+
+        Parameters
+        ----------
+        url : str
+        start : datetime
+        end : datetime
+        aggregation : int
+
+        Returns
+        -------
+        dict
+        """
         start = self._to_milliseconds(start)
         end = self._to_milliseconds(end)
 
-        url = URLS['servicelocation'] + "/{}/consumption".format(service_location_id)
         headers = {"Authorization": "Bearer {}".format(self.access_token)}
         params = {
             "aggregation": aggregation,
