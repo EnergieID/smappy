@@ -1,9 +1,11 @@
 import requests
 import datetime as dt
 import pandas as pd
+from functools import wraps
+import os
 
 __title__ = "smappy"
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __author__ = "EnergieID.be"
 __license__ = "MIT"
 
@@ -18,6 +20,7 @@ def authenticated(func):
     Decorator to check if Smappee's access token has expired. If it has, use the refresh token to request a new
     access token
     """
+    @wraps(func)
     def wrapper(*args, **kwargs):
         self = args[0]
         if self.refresh_token is not None and self.token_expiration_time <= dt.datetime.utcnow():
@@ -31,14 +34,14 @@ class Smappee(object):
     Object containing Smappee's API-methods.
     See https://smappee.atlassian.net/wiki/display/DEVAPI/API+Methods
     """
-    def __init__(self, client_id, client_secret):
+    def __init__(self, client_id=None, client_secret=None):
         """
         To receive a client id and secret, you need to request via the Smappee support
 
         Parameters
         ----------
-        client_id : str or None
-        client_secret : str or None
+        client_id : str, optional
+        client_secret : str, optional
             If None, you won't be able to do any authorisation, so it requires that you already have an access token
             somewhere. In that case, the SimpleSmappee class is something for you.
         """
@@ -151,7 +154,7 @@ class Smappee(object):
         -------
         dict
         """
-        url = URLS['servicelocation'] + "/{}/info".format(service_location_id)
+        url = os.path.join(URLS['servicelocation'], service_location_id, "info")
         headers = {"Authorization": "Bearer {}".format(self.access_token)}
         r = requests.get(url, headers=headers)
         if r.status_code != 200:
@@ -166,9 +169,10 @@ class Smappee(object):
         Parameters
         ----------
         service_location_id : int
-        start : datetime-like object (supports epoch, datetime and Pandas Timestamp)
-        end : datetime-like object (supports epoch, datetime and Pandas Timestamp)
-        aggregation : int (1 to 5)
+        start : int | dt.datetime | pd.Timestamp
+        end : int | dt.datetime | pd.Timestamp
+            start and end support epoch, datetime and Pandas Timestamp
+        aggregation : int
             1 = 5 min values (only available for the last 14 days)
             2 = hourly values
             3 = daily values
@@ -179,7 +183,7 @@ class Smappee(object):
         -------
         dict
         """
-        url = URLS['servicelocation'] + "/{}/consumption".format(service_location_id)
+        url = os.path.join(URLS['servicelocation'], service_location_id, "consumption")
         return self._get_consumption(url=url, start=start, end=end, aggregation=aggregation)
 
     @authenticated
@@ -191,9 +195,10 @@ class Smappee(object):
         ----------
         service_location_id : int
         sensor_id : int
-        start : datetime-like object (supports epoch, datetime and Pandas Timestamp)
-        end : datetime-like object (supports epoch, datetime and Pandas Timestamp)
-        aggregation : int (1 to 5)
+        start : int | dt.datetime | pd.Timestamp
+        end : int | dt.datetime | pd.Timestamp
+            start and end support epoch, datetime and Pandas Timestamp
+        aggregation : int
             1 = 5 min values (only available for the last 14 days)
             2 = hourly values
             3 = daily values
@@ -204,7 +209,7 @@ class Smappee(object):
         -------
         dict
         """
-        url = URLS['servicelocation'] + "/{}/sensor/{}/consumption".format(service_location_id, sensor_id)
+        url = os.path.join(URLS['servicelocation'], service_location_id, "sensor", sensor_id, "consumption")
         return self._get_consumption(url=url, start=start, end=end, aggregation=aggregation)
 
     def _get_consumption(self, url, start, end, aggregation):
@@ -214,8 +219,8 @@ class Smappee(object):
         Parameters
         ----------
         url : str
-        start : datetime
-        end : datetime
+        start : dt.datetime
+        end : dt.datetime
         aggregation : int
 
         Returns
@@ -245,9 +250,10 @@ class Smappee(object):
         ----------
         service_location_id : int
         appliance_id : int
-        start : datetime-like object (supports epoch, datetime and Pandas Timestamp)
-        end : datetime-like object (supports epoch, datetime and Pandas Timestamp)
-        max_number : int (optional)
+        start : int | dt.datetime | pd.Timestamp
+        end : int | dt.datetime | pd.Timestamp
+            start and end support epoch, datetime and Pandas Timestamp
+        max_number : int, optional
             The maximum number of events that should be returned by this query
             Default returns all events in the selected period
 
@@ -258,7 +264,7 @@ class Smappee(object):
         start = self._to_milliseconds(start)
         end = self._to_milliseconds(end)
 
-        url = URLS['servicelocation'] + "/{}/events".format(service_location_id)
+        url = os.path.join(URLS['servicelocation'], service_location_id, "events")
         headers = {"Authorization": "Bearer {}".format(self.access_token)}
         params = {
             "from": start,
@@ -281,14 +287,10 @@ class Smappee(object):
         ----------
         service_location_id : int
         actuator_id : int
-        duration : int
+        duration : int, optional
             300,900,1800 or 3600 , specifying the time in seconds the actuator
             should be turned on. Any other value results in turning on for an
             undetermined period of time.
-
-        Returns
-        -------
-        Nothing
         """
         return self._actuator_on_off(on_off='on', service_location_id=service_location_id, actuator_id=actuator_id,
                                      duration=duration)
@@ -303,39 +305,31 @@ class Smappee(object):
         ----------
         service_location_id : int
         actuator_id : int
-        duration : int
+        duration : int, optional
             300,900,1800 or 3600 , specifying the time in seconds the actuator
             should be turned on. Any other value results in turning on for an
             undetermined period of time.
-
-        Returns
-        -------
-        Nothing
         """
         return self._actuator_on_off(on_off='off', service_location_id=service_location_id, actuator_id=actuator_id,
                                      duration=duration)
 
     def _actuator_on_off(self, on_off, service_location_id, actuator_id, duration=None):
         """
-            NOT TESTED
-            Turn actuator on or off
+        NOT TESTED
+        Turn actuator on or off
 
-            Parameters
-            ----------
-            on_off : str
-                'on' or 'off'
-            service_location_id : int
-            actuator_id : int
-            duration : int
-                300,900,1800 or 3600 , specifying the time in seconds the actuator
-                should be turned on. Any other value results in turning on for an
-                undetermined period of time.
-
-            Returns
-            -------
-            Nothing
-            """
-        url = URLS['servicelocation'] + "/{}/actuator/{}/{}".format(service_location_id, actuator_id, on_off)
+        Parameters
+        ----------
+        on_off : str
+            'on' or 'off'
+        service_location_id : int
+        actuator_id : int
+        duration : int, optional
+            300,900,1800 or 3600 , specifying the time in seconds the actuator
+            should be turned on. Any other value results in turning on for an
+            undetermined period of time.
+        """
+        url = os.path.join(URLS['servicelocation'], service_location_id, "actuator", actuator_id, on_off)
         headers = {"Authorization": "Bearer {}".format(self.access_token)}
         data = {"duration": duration}
         r = requests.post(url, headers=headers, data=data)
@@ -350,20 +344,21 @@ class Smappee(object):
         Parameters
         ----------
         service_location_id : int
-        start : datetime
-        end : datetime
-        aggregation : int (1 to 5)
-        sensor_id : int (optional)
+        start : dt.datetime
+        end : dt.datetime
+        aggregation : int
+        sensor_id : int, optional
             If a sensor id is passed, api method get_sensor_consumption will be used
             otherwise (by default), the get_consumption method will be used: this returns Electricity and Solar
             consumption and production.
-        localize : bool (optional, default False)
+        localize : bool
+            default False
             default returns timestamps in UTC
             if True, timezone is fetched from service location info and Data Frame is localized
 
         Returns
         -------
-        Pandas DataFrame
+        pd.DataFrame
         """
         if sensor_id is None:
             data = self.get_consumption(service_location_id=service_location_id, start=start, end=end,
@@ -390,11 +385,12 @@ class Smappee(object):
 
         Parameters
         ----------
-        time : datetime-like object (works with datetime and Pandas Timestamp)
+        time : dt.datetime | pd.Timestamp
 
         Returns
         -------
-        int (epoch)
+        int
+            epoch
         """
         if isinstance(time, dt.datetime):
             return int(time.timestamp() * 1e3)
