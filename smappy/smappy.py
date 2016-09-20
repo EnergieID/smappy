@@ -5,7 +5,7 @@ from functools import wraps
 import os
 
 __title__ = "smappy"
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 __author__ = "EnergieID.be"
 __license__ = "MIT"
 
@@ -154,7 +154,7 @@ class Smappee(object):
         -------
         dict
         """
-        url = os.path.join(URLS['servicelocation'], service_location_id, "info")
+        url = os.path.join(URLS['servicelocation'], str(service_location_id), "info")
         headers = {"Authorization": "Bearer {}".format(self.access_token)}
         r = requests.get(url, headers=headers)
         if r.status_code != 200:
@@ -183,7 +183,7 @@ class Smappee(object):
         -------
         dict
         """
-        url = os.path.join(URLS['servicelocation'], service_location_id, "consumption")
+        url = os.path.join(URLS['servicelocation'], str(service_location_id), "consumption")
         return self._get_consumption(url=url, start=start, end=end, aggregation=aggregation)
 
     @authenticated
@@ -209,7 +209,7 @@ class Smappee(object):
         -------
         dict
         """
-        url = os.path.join(URLS['servicelocation'], service_location_id, "sensor", sensor_id, "consumption")
+        url = os.path.join(URLS['servicelocation'], str(service_location_id), "sensor", str(sensor_id), "consumption")
         return self._get_consumption(url=url, start=start, end=end, aggregation=aggregation)
 
     def _get_consumption(self, url, start, end, aggregation):
@@ -264,7 +264,7 @@ class Smappee(object):
         start = self._to_milliseconds(start)
         end = self._to_milliseconds(end)
 
-        url = os.path.join(URLS['servicelocation'], service_location_id, "events")
+        url = os.path.join(URLS['servicelocation'], str(service_location_id), "events")
         headers = {"Authorization": "Bearer {}".format(self.access_token)}
         params = {
             "from": start,
@@ -329,7 +329,7 @@ class Smappee(object):
             should be turned on. Any other value results in turning on for an
             undetermined period of time.
         """
-        url = os.path.join(URLS['servicelocation'], service_location_id, "actuator", actuator_id, on_off)
+        url = os.path.join(URLS['servicelocation'], str(service_location_id), "actuator", str(actuator_id), on_off)
         headers = {"Authorization": "Bearer {}".format(self.access_token)}
         data = {"duration": duration}
         r = requests.post(url, headers=headers, data=data)
