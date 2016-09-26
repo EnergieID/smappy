@@ -332,7 +332,7 @@ class Smappee(object):
         url = os.path.join(URLS['servicelocation'], str(service_location_id), "actuator", str(actuator_id), on_off)
         headers = {"Authorization": "Bearer {}".format(self.access_token)}
         data = {"duration": duration}
-        r = requests.post(url, headers=headers, data=data)
+        r = requests.post(url, headers=headers, json=data)
         if r.status_code != 200:
             raise requests.HTTPError(r.status_code, url, headers, data)
         return
