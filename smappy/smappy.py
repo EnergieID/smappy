@@ -1,11 +1,10 @@
 import requests
 import datetime as dt
-import pandas as pd
 from functools import wraps
 import os
 
 __title__ = "smappy"
-__version__ = "0.2.3"
+__version__ = "0.2.4"
 __author__ = "EnergieID.be"
 __license__ = "MIT"
 
@@ -360,6 +359,8 @@ class Smappee(object):
         -------
         pd.DataFrame
         """
+        import pandas as pd
+
         if sensor_id is None:
             data = self.get_consumption(service_location_id=service_location_id, start=start, end=end,
                                         aggregation=aggregation)
