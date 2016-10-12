@@ -2,9 +2,10 @@ import requests
 import datetime as dt
 from functools import wraps
 import os
+import warnings
 
 __title__ = "smappy"
-__version__ = "0.2.4"
+__version__ = "0.2.5"
 __author__ = "EnergieID.be"
 __license__ = "MIT"
 
@@ -416,3 +417,79 @@ class SimpleSmappee(Smappee):
         """
         super(SimpleSmappee, self).__init__(client_id=None, client_secret=None)
         self.access_token = access_token
+
+
+class LocalSmappee(object):
+    """
+    Access a Smappee in your local network
+    """
+    def __init__(self, ip):
+        """
+        Parameters
+        ----------
+        ip : str
+            local IP-address of your Smappee
+        """
+        warnings.warn('This class is currently untested. Please report any errors on '
+                      'https://github.com/EnergyID/smappy/issues/7')
+        self.ip = ip
+        self.headers = {'Content-Type': 'application/json;charset=UTF-8'}
+
+    @property
+    def base_url(self):
+        url = os.path.join('http://', self.ip, 'gateway', 'apipublic')
+        return url
+
+    def logon(self, password='admin'):
+        """
+        Parameters
+        ----------
+        password : str
+            default 'admin'
+
+        Returns
+        -------
+        str
+        """
+        url = os.path.join(self.base_url, 'logon')
+        data = password
+
+        r = requests.post(url, data=data, headers=self.headers, timeout=5)
+        if r.status_code != 200:
+            raise requests.HTTPError(r.status_code, url, self.headers, data)
+        return r.content
+
+    def report_instantaneous_values(self):
+        """
+        Returns
+        -------
+        str
+        """
+        url = os.path.join(self.base_url, 'reportInstantaneousValues')
+
+        r = requests.get(url, headers=self.headers, timeout=5)
+        if r.status_code != 200:
+            raise requests.HTTPError(r.status_code, url, self.headers)
+        return r.content
+
+    def load_instantaneous(self):
+        """
+        Returns
+        -------
+        str
+        """
+        url = os.path.join(self.base_url, 'instantaneous')
+        data = "loadInstantaneous"
+
+        r = requests.post(url, data=data, headers=self.headers, timeout=5)
+        if r.status_code != 200:
+            raise requests.HTTPError(r.status_code, url, self.headers, data)
+        return r.content
+
+    def restart(self):
+        url = os.path.join(self.base_url, 'restartEMeter')
+
+        r = requests.post(url, headers=self.headers, timeout=5)
+        if r.status_code != 200:
+            raise requests.HTTPError(r.status_code, url, self.headers)
+        return
