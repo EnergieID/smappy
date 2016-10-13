@@ -61,7 +61,7 @@ class Smappee(object):
 
         Returns
         -------
-        nothing
+        requests.Response
             access token is saved in self.access_token
             refresh token is saved in self.refresh_token
             expiration time is set in self.token_expiration_time as datetime.datetime
@@ -80,6 +80,7 @@ class Smappee(object):
         self.access_token = j['access_token']
         self.refresh_token = j['refresh_token']
         self._set_token_expiration_time(expires_in=j['expires_in'])
+        return r
 
     def _set_token_expiration_time(self, expires_in):
         """
@@ -103,7 +104,7 @@ class Smappee(object):
 
         Returns
         -------
-        nothing
+        requests.Response
             access token is saved in self.access_token
             refresh token is saved in self.refresh_token
             expiration time is set in self.token_expiration_time as datetime.datetime
@@ -121,6 +122,7 @@ class Smappee(object):
         self.access_token = j['access_token']
         self.refresh_token = j['refresh_token']
         self._set_token_expiration_time(expires_in=j['expires_in'])
+        return r
 
     @authenticated
     def get_service_locations(self):
@@ -283,6 +285,10 @@ class Smappee(object):
             300,900,1800 or 3600 , specifying the time in seconds the actuator
             should be turned on. Any other value results in turning on for an
             undetermined period of time.
+
+        Returns
+        -------
+        requests.Response
         """
         return self._actuator_on_off(on_off='on', service_location_id=service_location_id, actuator_id=actuator_id,
                                      duration=duration)
@@ -300,6 +306,10 @@ class Smappee(object):
             300,900,1800 or 3600 , specifying the time in seconds the actuator
             should be turned on. Any other value results in turning on for an
             undetermined period of time.
+
+        Returns
+        -------
+        requests.Response
         """
         return self._actuator_on_off(on_off='off', service_location_id=service_location_id, actuator_id=actuator_id,
                                      duration=duration)
@@ -318,13 +328,17 @@ class Smappee(object):
             300,900,1800 or 3600 , specifying the time in seconds the actuator
             should be turned on. Any other value results in turning on for an
             undetermined period of time.
+
+        Returns
+        -------
+        requests.Response
         """
         url = os.path.join(URLS['servicelocation'], str(service_location_id), "actuator", str(actuator_id), on_off)
         headers = {"Authorization": "Bearer {}".format(self.access_token)}
         data = {"duration": duration}
         r = requests.post(url, headers=headers, json=data)
         r.raise_for_status()
-        return
+        return r
 
     def get_consumption_dataframe(self, service_location_id, start, end, aggregation, sensor_id=None, localize=False):
         """
@@ -436,43 +450,48 @@ class LocalSmappee(object):
 
         Returns
         -------
-        str
+        dict
         """
         url = os.path.join(self.base_url, 'logon')
         data = password
 
         r = requests.post(url, data=data, headers=self.headers, timeout=5)
         r.raise_for_status()
-        return r.content
+        return r.json()
 
     def report_instantaneous_values(self):
         """
         Returns
         -------
-        str
+        dict
         """
         url = os.path.join(self.base_url, 'reportInstantaneousValues')
 
         r = requests.get(url, headers=self.headers, timeout=5)
         r.raise_for_status()
-        return r.content
+        return r.json()
 
     def load_instantaneous(self):
         """
         Returns
         -------
-        str
+        dict
         """
         url = os.path.join(self.base_url, 'instantaneous')
         data = "loadInstantaneous"
 
         r = requests.post(url, data=data, headers=self.headers, timeout=5)
         r.raise_for_status()
-        return r.content
+        return r.json()
 
     def restart(self):
+        """
+        Returns
+        -------
+        requests.Response
+        """
         url = os.path.join(self.base_url, 'restartEMeter')
 
         r = requests.post(url, headers=self.headers, timeout=5)
         r.raise_for_status()
-        return
+        return r
