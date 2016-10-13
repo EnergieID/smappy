@@ -5,7 +5,7 @@ import os
 import warnings
 
 __title__ = "smappy"
-__version__ = "0.2.5"
+__version__ = "0.2.6"
 __author__ = "EnergieID.be"
 __license__ = "MIT"
 
