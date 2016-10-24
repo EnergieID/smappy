@@ -1,16 +1,16 @@
 import requests
+from requests.compat import urljoin
 import datetime as dt
 from functools import wraps
-import os
 
 __title__ = "smappy"
-__version__ = "0.2.7"
+__version__ = "0.2.8"
 __author__ = "EnergieID.be"
 __license__ = "MIT"
 
 URLS = {
-    'token': 'https://app1pub.smappee.net/dev/v1/oauth2/token',
-    'servicelocation': 'https://app1pub.smappee.net/dev/v1/servicelocation'
+    'token': 'https://app1pub.smappee.net/dev/v1/oauth2/token/',
+    'servicelocation': 'https://app1pub.smappee.net/dev/v1/servicelocation/'
 }
 
 
@@ -152,7 +152,7 @@ class Smappee(object):
         -------
         dict
         """
-        url = os.path.join(URLS['servicelocation'], str(service_location_id), "info")
+        url = urljoin(URLS['servicelocation'], str(service_location_id), "info")
         headers = {"Authorization": "Bearer {}".format(self.access_token)}
         r = requests.get(url, headers=headers)
         r.raise_for_status()
@@ -180,7 +180,7 @@ class Smappee(object):
         -------
         dict
         """
-        url = os.path.join(URLS['servicelocation'], str(service_location_id), "consumption")
+        url = urljoin(URLS['servicelocation'], str(service_location_id), "consumption")
         return self._get_consumption(url=url, start=start, end=end, aggregation=aggregation)
 
     @authenticated
@@ -206,7 +206,7 @@ class Smappee(object):
         -------
         dict
         """
-        url = os.path.join(URLS['servicelocation'], str(service_location_id), "sensor", str(sensor_id), "consumption")
+        url = urljoin(URLS['servicelocation'], str(service_location_id), "sensor", str(sensor_id), "consumption")
         return self._get_consumption(url=url, start=start, end=end, aggregation=aggregation)
 
     def _get_consumption(self, url, start, end, aggregation):
@@ -260,7 +260,7 @@ class Smappee(object):
         start = self._to_milliseconds(start)
         end = self._to_milliseconds(end)
 
-        url = os.path.join(URLS['servicelocation'], str(service_location_id), "events")
+        url = urljoin(URLS['servicelocation'], str(service_location_id), "events")
         headers = {"Authorization": "Bearer {}".format(self.access_token)}
         params = {
             "from": start,
@@ -333,7 +333,7 @@ class Smappee(object):
         -------
         requests.Response
         """
-        url = os.path.join(URLS['servicelocation'], str(service_location_id), "actuator", str(actuator_id), on_off)
+        url = urljoin(URLS['servicelocation'], str(service_location_id), "actuator", str(actuator_id), on_off)
         headers = {"Authorization": "Bearer {}".format(self.access_token)}
         data = {"duration": duration}
         r = requests.post(url, headers=headers, json=data)
@@ -438,7 +438,7 @@ class LocalSmappee(object):
 
     @property
     def base_url(self):
-        url = os.path.join('http://', self.ip, 'gateway', 'apipublic')
+        url = urljoin('http://', self.ip, 'gateway', 'apipublic')
         return url
 
     def logon(self, password='admin'):
@@ -452,7 +452,7 @@ class LocalSmappee(object):
         -------
         dict
         """
-        url = os.path.join(self.base_url, 'logon')
+        url = urljoin(self.base_url, 'logon')
         data = password
 
         r = requests.post(url, data=data, headers=self.headers, timeout=5)
@@ -465,7 +465,7 @@ class LocalSmappee(object):
         -------
         dict
         """
-        url = os.path.join(self.base_url, 'reportInstantaneousValues')
+        url = urljoin(self.base_url, 'reportInstantaneousValues')
 
         r = requests.get(url, headers=self.headers, timeout=5)
         r.raise_for_status()
@@ -477,7 +477,7 @@ class LocalSmappee(object):
         -------
         dict
         """
-        url = os.path.join(self.base_url, 'instantaneous')
+        url = urljoin(self.base_url, 'instantaneous')
         data = "loadInstantaneous"
 
         r = requests.post(url, data=data, headers=self.headers, timeout=5)
@@ -490,7 +490,7 @@ class LocalSmappee(object):
         -------
         requests.Response
         """
-        url = os.path.join(self.base_url, 'restartEMeter')
+        url = urljoin(self.base_url, 'restartEMeter')
 
         r = requests.post(url, headers=self.headers, timeout=5)
         r.raise_for_status()
