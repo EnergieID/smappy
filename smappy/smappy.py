@@ -254,9 +254,8 @@ class Smappee(object):
         return r.json()
 
     @authenticated
-    def get_events(
-            self, service_location_id, appliance_id, start, end,
-            max_number=None):
+    def get_events(self, service_location_id, appliance_id, start, end,
+                   max_number=None):
         """
         Request events for a given appliance
 
