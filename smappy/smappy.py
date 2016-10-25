@@ -1,5 +1,4 @@
 import requests
-from requests.compat import urljoin
 import datetime as dt
 from functools import wraps
 
@@ -9,8 +8,8 @@ __author__ = "EnergieID.be"
 __license__ = "MIT"
 
 URLS = {
-    'token': 'https://app1pub.smappee.net/dev/v1/oauth2/token/',
-    'servicelocation': 'https://app1pub.smappee.net/dev/v1/servicelocation/'
+    'token': 'https://app1pub.smappee.net/dev/v1/oauth2/token',
+    'servicelocation': 'https://app1pub.smappee.net/dev/v1/servicelocation'
 }
 
 
@@ -152,7 +151,7 @@ class Smappee(object):
         -------
         dict
         """
-        url = urljoin(URLS['servicelocation'], str(service_location_id), "info")
+        url = urljoin(URLS['servicelocation'], service_location_id, "info")
         headers = {"Authorization": "Bearer {}".format(self.access_token)}
         r = requests.get(url, headers=headers)
         r.raise_for_status()
@@ -180,7 +179,7 @@ class Smappee(object):
         -------
         dict
         """
-        url = urljoin(URLS['servicelocation'], str(service_location_id), "consumption")
+        url = urljoin(URLS['servicelocation'], service_location_id, "consumption")
         return self._get_consumption(url=url, start=start, end=end, aggregation=aggregation)
 
     @authenticated
@@ -206,7 +205,7 @@ class Smappee(object):
         -------
         dict
         """
-        url = urljoin(URLS['servicelocation'], str(service_location_id), "sensor", str(sensor_id), "consumption")
+        url = urljoin(URLS['servicelocation'], service_location_id, "sensor", sensor_id, "consumption")
         return self._get_consumption(url=url, start=start, end=end, aggregation=aggregation)
 
     def _get_consumption(self, url, start, end, aggregation):
@@ -260,7 +259,7 @@ class Smappee(object):
         start = self._to_milliseconds(start)
         end = self._to_milliseconds(end)
 
-        url = urljoin(URLS['servicelocation'], str(service_location_id), "events")
+        url = urljoin(URLS['servicelocation'], service_location_id, "events")
         headers = {"Authorization": "Bearer {}".format(self.access_token)}
         params = {
             "from": start,
@@ -333,7 +332,7 @@ class Smappee(object):
         -------
         requests.Response
         """
-        url = urljoin(URLS['servicelocation'], str(service_location_id), "actuator", str(actuator_id), on_off)
+        url = urljoin(URLS['servicelocation'], service_location_id, "actuator", actuator_id, on_off)
         headers = {"Authorization": "Bearer {}".format(self.access_token)}
         data = {"duration": duration}
         r = requests.post(url, headers=headers, json=data)
@@ -495,3 +494,30 @@ class LocalSmappee(object):
         r = requests.post(url, headers=self.headers, timeout=5)
         r.raise_for_status()
         return r
+
+
+def urljoin(*parts):
+    """
+    Join terms together with forward slashes
+
+    Parameters
+    ----------
+    parts
+
+    Returns
+    -------
+    str
+    """
+    # first strip extra forward slashes (except http:// and the likes) and
+    # create list
+    part_list = []
+    for part in parts:
+        p = str(part)
+        if p.endswith('//'):
+            p = p[0:-1]
+        else:
+            p = p.strip('/')
+        part_list.append(p)
+    # join everything together
+    url = '/'.join(part_list)
+    return url
