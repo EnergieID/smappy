@@ -15,13 +15,14 @@ URLS = {
 
 def authenticated(func):
     """
-    Decorator to check if Smappee's access token has expired. If it has, use the refresh token to request a new
-    access token
+    Decorator to check if Smappee's access token has expired.
+    If it has, use the refresh token to request a new access token
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
         self = args[0]
-        if self.refresh_token is not None and self.token_expiration_time <= dt.datetime.utcnow():
+        if self.refresh_token is not None and \
+           self.token_expiration_time <= dt.datetime.utcnow():
             self.re_authenticate()
         return func(*args, **kwargs)
     return wrapper
@@ -34,14 +35,16 @@ class Smappee(object):
     """
     def __init__(self, client_id=None, client_secret=None):
         """
-        To receive a client id and secret, you need to request via the Smappee support
+        To receive a client id and secret,
+        you need to request via the Smappee support
 
         Parameters
         ----------
         client_id : str, optional
         client_secret : str, optional
-            If None, you won't be able to do any authorisation, so it requires that you already have an access token
-            somewhere. In that case, the SimpleSmappee class is something for you.
+            If None, you won't be able to do any authorisation,
+            so it requires that you already have an access token somewhere.
+            In that case, the SimpleSmappee class is something for you.
         """
         self.client_id = client_id
         self.client_secret = client_secret
@@ -51,7 +54,8 @@ class Smappee(object):
 
     def authenticate(self, username, password):
         """
-        Uses a Smappee username and password to request an access token, refresh token and expiry date
+        Uses a Smappee username and password to request an access token,
+        refresh token and expiry date.
 
         Parameters
         ----------
@@ -63,7 +67,8 @@ class Smappee(object):
         requests.Response
             access token is saved in self.access_token
             refresh token is saved in self.refresh_token
-            expiration time is set in self.token_expiration_time as datetime.datetime
+            expiration time is set in self.token_expiration_time as
+            datetime.datetime
         """
         url = URLS['token']
         data = {
@@ -83,7 +88,8 @@ class Smappee(object):
 
     def _set_token_expiration_time(self, expires_in):
         """
-        Saves the token expiration time by adding the 'expires in' parameter to the current datetime (in utc)
+        Saves the token expiration time by adding the 'expires in' parameter
+        to the current datetime (in utc).
 
         Parameters
         ----------
@@ -93,20 +99,24 @@ class Smappee(object):
         Returns
         -------
         nothing
-            saves expiration time in self.token_expiration_time as datetime.datetime
+            saves expiration time in self.token_expiration_time as
+            datetime.datetime
         """
-        self.token_expiration_time = dt.datetime.utcnow() + dt.timedelta(0, expires_in)  # timedelta(days, seconds)
+        self.token_expiration_time = dt.datetime.utcnow() + \
+            dt.timedelta(0, expires_in)  # timedelta(days, seconds)
 
     def re_authenticate(self):
         """
-        Uses the refresh token to request a new access token, refresh token and expiration date
+        Uses the refresh token to request a new access token, refresh token and
+        expiration date.
 
         Returns
         -------
         requests.Response
             access token is saved in self.access_token
             refresh token is saved in self.refresh_token
-            expiration time is set in self.token_expiration_time as datetime.datetime
+            expiration time is set in self.token_expiration_time as
+            datetime.datetime
         """
         url = URLS['token']
         data = {
@@ -160,7 +170,8 @@ class Smappee(object):
     @authenticated
     def get_consumption(self, service_location_id, start, end, aggregation):
         """
-        Request Elektricity consumption and Solar production for a given service location
+        Request Elektricity consumption and Solar production
+        for a given service location.
 
         Parameters
         ----------
@@ -179,11 +190,14 @@ class Smappee(object):
         -------
         dict
         """
-        url = urljoin(URLS['servicelocation'], service_location_id, "consumption")
-        return self._get_consumption(url=url, start=start, end=end, aggregation=aggregation)
+        url = urljoin(URLS['servicelocation'], service_location_id,
+                      "consumption")
+        return self._get_consumption(url=url, start=start, end=end,
+                                     aggregation=aggregation)
 
     @authenticated
-    def get_sensor_consumption(self, service_location_id, sensor_id, start, end, aggregation):
+    def get_sensor_consumption(self, service_location_id, sensor_id, start,
+                               end, aggregation):
         """
         Request consumption for a given sensor in a given service location
 
@@ -205,12 +219,15 @@ class Smappee(object):
         -------
         dict
         """
-        url = urljoin(URLS['servicelocation'], service_location_id, "sensor", sensor_id, "consumption")
-        return self._get_consumption(url=url, start=start, end=end, aggregation=aggregation)
+        url = urljoin(URLS['servicelocation'], service_location_id, "sensor",
+                      sensor_id, "consumption")
+        return self._get_consumption(url=url, start=start, end=end,
+                                     aggregation=aggregation)
 
     def _get_consumption(self, url, start, end, aggregation):
         """
-        Request for both the get_consumption and get_sensor_consumption methods.
+        Request for both the get_consumption and
+        get_sensor_consumption methods.
 
         Parameters
         ----------
@@ -237,7 +254,9 @@ class Smappee(object):
         return r.json()
 
     @authenticated
-    def get_events(self, service_location_id, appliance_id, start, end, max_number=None):
+    def get_events(
+            self, service_location_id, appliance_id, start, end,
+            max_number=None):
         """
         Request events for a given appliance
 
@@ -289,8 +308,9 @@ class Smappee(object):
         -------
         requests.Response
         """
-        return self._actuator_on_off(on_off='on', service_location_id=service_location_id, actuator_id=actuator_id,
-                                     duration=duration)
+        return self._actuator_on_off(
+            on_off='on', service_location_id=service_location_id,
+            actuator_id=actuator_id, duration=duration)
 
     @authenticated
     def actuator_off(self, service_location_id, actuator_id, duration=None):
@@ -310,10 +330,12 @@ class Smappee(object):
         -------
         requests.Response
         """
-        return self._actuator_on_off(on_off='off', service_location_id=service_location_id, actuator_id=actuator_id,
-                                     duration=duration)
+        return self._actuator_on_off(
+            on_off='off', service_location_id=service_location_id,
+            actuator_id=actuator_id, duration=duration)
 
-    def _actuator_on_off(self, on_off, service_location_id, actuator_id, duration=None):
+    def _actuator_on_off(self, on_off, service_location_id, actuator_id,
+                         duration=None):
         """
         Turn actuator on or off
 
@@ -332,16 +354,19 @@ class Smappee(object):
         -------
         requests.Response
         """
-        url = urljoin(URLS['servicelocation'], service_location_id, "actuator", actuator_id, on_off)
+        url = urljoin(URLS['servicelocation'], service_location_id,
+                      "actuator", actuator_id, on_off)
         headers = {"Authorization": "Bearer {}".format(self.access_token)}
         data = {"duration": duration}
         r = requests.post(url, headers=headers, json=data)
         r.raise_for_status()
         return r
 
-    def get_consumption_dataframe(self, service_location_id, start, end, aggregation, sensor_id=None, localize=False):
+    def get_consumption_dataframe(self, service_location_id, start, end,
+                                  aggregation, sensor_id=None, localize=False):
         """
-        Extends get_consumption() AND get_sensor_consumption(), parses the results in a Pandas DataFrame
+        Extends get_consumption() AND get_sensor_consumption(),
+        parses the results in a Pandas DataFrame
 
         Parameters
         ----------
@@ -350,13 +375,15 @@ class Smappee(object):
         end : dt.datetime
         aggregation : int
         sensor_id : int, optional
-            If a sensor id is passed, api method get_sensor_consumption will be used
-            otherwise (by default), the get_consumption method will be used: this returns Electricity and Solar
-            consumption and production.
+            If a sensor id is passed, api method get_sensor_consumption will
+            be used otherwise (by default),
+            the get_consumption method will be used: this returns Electricity
+            and Solar consumption and production.
         localize : bool
             default False
             default returns timestamps in UTC
-            if True, timezone is fetched from service location info and Data Frame is localized
+            if True, timezone is fetched from service location info and
+            Data Frame is localized
 
         Returns
         -------
@@ -365,20 +392,25 @@ class Smappee(object):
         import pandas as pd
 
         if sensor_id is None:
-            data = self.get_consumption(service_location_id=service_location_id, start=start, end=end,
-                                        aggregation=aggregation)
+            data = self.get_consumption(
+                service_location_id=service_location_id, start=start,
+                end=end, aggregation=aggregation)
             consumptions = data['consumptions']
         else:
-            data = self.get_sensor_consumption(service_location_id=service_location_id, sensor_id=sensor_id,
-                                               start=start, end=end, aggregation=aggregation)
-            consumptions = data['records']  # yeah please someone explain me why they had to name this differently...
+            data = self.get_sensor_consumption(
+                service_location_id=service_location_id, sensor_id=sensor_id,
+                start=start, end=end, aggregation=aggregation)
+            # yeah please someone explain me why they had to name this
+            # differently...
+            consumptions = data['records']
 
         df = pd.DataFrame.from_dict(consumptions)
         if not df.empty:
             df.set_index('timestamp', inplace=True)
             df.index = pd.to_datetime(df.index, unit='ms', utc=True)
             if localize:
-                info = self.get_service_location_info(service_location_id=service_location_id)
+                info = self.get_service_location_info(
+                    service_location_id=service_location_id)
                 timezone = info['timezone']
                 df = df.tz_convert(timezone)
         return df
@@ -401,14 +433,17 @@ class Smappee(object):
         elif isinstance(time, int):
             return time
         else:
-            raise NotImplementedError("Time format not supported. Use epochs, Datetime or Pandas Datetime")
+            raise NotImplementedError("Time format not supported. Use epochs,\
+                                        Datetime or Pandas Datetime")
 
 
 class SimpleSmappee(Smappee):
     """
-    Object to use if you have no client id, client secret, refresh token etc, for instance if everything concerning
+    Object to use if you have no client id, client secret, refresh token etc,
+    for instance if everything concerning
     oAuth is handed off to a different process like a web layer.
-    This object only uses a given access token. It has no means of refreshing it when it expires, in which case
+    This object only uses a given access token.
+    It has no means of refreshing it when it expires, in which case
     the requests will return errors.
     """
     def __init__(self, access_token):
