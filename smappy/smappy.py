@@ -1,6 +1,7 @@
 import requests
 import datetime as dt
 from functools import wraps
+import pytz
 
 __title__ = "smappy"
 __version__ = "0.2.9"
@@ -208,6 +209,7 @@ class Smappee(object):
         start : int | dt.datetime | pd.Timestamp
         end : int | dt.datetime | pd.Timestamp
             start and end support epoch, datetime and Pandas Timestamp
+            timezone-naive datetimes are assumed to be in UTC
         aggregation : int
             1 = 5 min values (only available for the last 14 days)
             2 = hourly values
@@ -266,6 +268,7 @@ class Smappee(object):
         start : int | dt.datetime | pd.Timestamp
         end : int | dt.datetime | pd.Timestamp
             start and end support epoch, datetime and Pandas Timestamp
+            timezone-naive datetimes are assumed to be in UTC
         max_number : int, optional
             The maximum number of events that should be returned by this query
             Default returns all events in the selected period
@@ -370,8 +373,9 @@ class Smappee(object):
         Parameters
         ----------
         service_location_id : int
-        start : dt.datetime
-        end : dt.datetime
+        start : dt.datetime | int
+        end : dt.datetime | int
+            timezone-naive datetimes are assumed to be in UTC
         aggregation : int
         sensor_id : int, optional
             If a sensor id is passed, api method get_sensor_consumption will
@@ -417,17 +421,20 @@ class Smappee(object):
     def _to_milliseconds(self, time):
         """
         Converts a datetime-like object to epoch, in milliseconds
+        Timezone-naive datetime objects are assumed to be in UTC
 
         Parameters
         ----------
-        time : dt.datetime | pd.Timestamp
+        time : dt.datetime | pd.Timestamp | int
 
         Returns
         -------
         int
-            epoch
+            epoch milliseconds
         """
         if isinstance(time, dt.datetime):
+            if time.tzinfo is None:
+                time = time.replace(tzinfo=pytz.UTC)
             return int(time.timestamp() * 1e3)
         elif isinstance(time, int):
             return time
