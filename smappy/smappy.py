@@ -475,6 +475,7 @@ class LocalSmappee(object):
         """
         self.ip = ip
         self.headers = {'Content-Type': 'application/json;charset=UTF-8'}
+        self.session = requests.Session()
 
     @property
     def base_url(self):
@@ -495,13 +496,14 @@ class LocalSmappee(object):
         requests.Response
         """
         _url = urljoin(self.base_url, url)
-        r = requests.post(_url, data=data, headers=self.headers, timeout=5)
+        r = self.session.post(_url, data=data, headers=self.headers, timeout=5)
         r.raise_for_status()
         return r
 
     def _basic_get(self, url, params=None):
         _url = urljoin(self.base_url, url)
-        r = requests.get(_url, params=params, headers=self.headers, timeout=5)
+        r = self.session.get(_url, params=params, headers=self.headers,
+                             timeout=5)
         r.raise_for_status()
         return r
 
