@@ -481,6 +481,30 @@ class LocalSmappee(object):
         url = urljoin('http://', self.ip, 'gateway', 'apipublic')
         return url
 
+    def _basic_post(self, url, data=None):
+        """
+        Because basically every post request is the same
+
+        Parameters
+        ----------
+        url : str
+        data : str, optional
+
+        Returns
+        -------
+        requests.Response
+        """
+        _url = urljoin(self.base_url, url)
+        r = requests.post(_url, data=data, headers=self.headers, timeout=5)
+        r.raise_for_status()
+        return r
+
+    def _basic_get(self, url, params=None):
+        _url = urljoin(self.base_url, url)
+        r = requests.get(_url, params=params, headers=self.headers, timeout=5)
+        r.raise_for_status()
+        return r
+
     def logon(self, password='admin'):
         """
         Parameters
@@ -492,11 +516,7 @@ class LocalSmappee(object):
         -------
         dict
         """
-        url = urljoin(self.base_url, 'logon')
-        data = password
-
-        r = requests.post(url, data=data, headers=self.headers, timeout=5)
-        r.raise_for_status()
+        r = self._basic_post(url='logon', data=password)
         return r.json()
 
     def report_instantaneous_values(self):
@@ -505,10 +525,7 @@ class LocalSmappee(object):
         -------
         dict
         """
-        url = urljoin(self.base_url, 'reportInstantaneousValues')
-
-        r = requests.get(url, headers=self.headers, timeout=5)
-        r.raise_for_status()
+        r = self._basic_post(url='reportInstantaneousValues')
         return r.json()
 
     def load_instantaneous(self):
@@ -517,11 +534,7 @@ class LocalSmappee(object):
         -------
         dict
         """
-        url = urljoin(self.base_url, 'instantaneous')
-        data = "loadInstantaneous"
-
-        r = requests.post(url, data=data, headers=self.headers, timeout=5)
-        r.raise_for_status()
+        r = self._basic_post(url='instantaneous', data="loadInstantaneous")
         return r.json()
 
     def restart(self):
@@ -530,11 +543,193 @@ class LocalSmappee(object):
         -------
         requests.Response
         """
-        url = urljoin(self.base_url, 'restartEMeter')
+        return self._basic_get(url='restartSmappee?action=2')
 
-        r = requests.post(url, headers=self.headers, timeout=5)
-        r.raise_for_status()
-        return r
+    def reset_active_power_peaks(self):
+        """
+        Returns
+        -------
+        requests.Response
+        """
+        return self._basic_post(url='resetActivePowerPeaks')
+
+    def reset_ip_scan_cache(self):
+        """
+        Returns
+        -------
+        requests.Response
+        """
+        return self._basic_post(url='resetIPScanCache')
+
+    def reset_sensor_cache(self):
+        """
+        Returns
+        -------
+        requests.Response
+        """
+        return self._basic_post(url='resetSensorCache')
+
+    def reset_data(self):
+        """
+        Returns
+        -------
+        requests.Response
+        """
+        return self._basic_post(url='clearData')
+
+    def clear_appliances(self):
+        """
+        Returns
+        -------
+        requests.Response
+        """
+        return self._basic_post(url='clearAppliances')
+
+    def load_advanced_config(self):
+        """
+        Returns
+        -------
+        dict
+        """
+        r = self._basic_post(url='advancedConfigPublic', data='load')
+        return r.json()
+
+    def load_config(self):
+        """
+        Returns
+        -------
+        dict
+        """
+        r = self._basic_post(url='configPublic', data='load')
+        return r.json()
+
+    def save_config(self, *args, **kwargs):
+        """
+        Parameters
+        ----------
+        args
+        kwargs
+
+        Raises
+        ------
+        NotImplementedError
+        """
+        raise NotImplementedError("JavaScript Code can be found on "
+                                  "https://github.com/EnergyID/smappy/issues/16"
+                                  ", feel free to implement it, or create an "
+                                  "issue if you have need for this function")
+
+    def load_command_control_config(self):
+        """
+        Returns
+        -------
+        dict
+        """
+        r = self._basic_post(url='commandControlPublic', data='load')
+        return r.json()
+
+    def send_group(self):
+        """
+        Returns
+        -------
+        requests.Response
+        """
+        return self._basic_post(url='commandControlPublic', data='controlGroup')
+
+    def on_off_command_control(self, val_id):
+        """
+        Parameters
+        ----------
+        val_id : str
+
+        Returns
+        -------
+        requests.Response
+        """
+        data = "control,controlId=" + val_id
+        return self._basic_post(url='commandControlPublic', data=data)
+
+    def add_command_control(self, *args, **kwargs):
+        """
+        Parameters
+        ----------
+        args
+        kwargs
+
+        Raises
+        -------
+        NotImplementedError
+        """
+        raise NotImplementedError("JavaScript Code can be found on "
+                                  "https://github.com/EnergyID/smappy/issues/16"
+                                  ", feel free to implement it, or create an "
+                                  "issue if you have need for this function")
+
+    def delete_command_control(self, val_id):
+        """
+        Parameters
+        ----------
+        val_id : str
+
+        Returns
+        -------
+        requests.Response
+        """
+
+        data = "delete,controlId=" + val_id
+        return self._basic_post(url='commandControlPublic', data=data)
+
+    def delete_command_control_timers(self, val_id):
+        """
+        Parameters
+        ----------
+        val_id : str
+
+        Returns
+        -------
+        requests.Response
+        """
+        data = "deleteTimers,controlId=" + val_id
+        return self._basic_post(url='commandControlPublic', data=data)
+
+    def add_command_control_timed(self, *args, **kwargs):
+        """
+        Parameters
+        ----------
+        args
+        kwargs
+
+        Raises
+        -------
+        NotImplementedError
+        """
+        raise NotImplementedError("JavaScript Code can be found on "
+                                  "https://github.com/EnergyID/smappy/issues/16"
+                                  ", feel free to implement it, or create an "
+                                  "issue if you have need for this function")
+
+    def load_logfiles(self):
+        """
+        Returns
+        -------
+        dict
+        """
+        r = self._basic_post(url='logBrowser', data='logFileList')
+        return r.json()
+
+    def select_logfile(self, logfile):
+        """
+        Parameters
+        ----------
+        logfile : str
+
+        Returns
+        -------
+        dict
+        """
+        data = 'logFileSelect,' + logfile
+        r = self._basic_post(url='logBrowser', data=data)
+        return r.json()
 
 
 def urljoin(*parts):
