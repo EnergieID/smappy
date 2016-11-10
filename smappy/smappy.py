@@ -537,6 +537,19 @@ class LocalSmappee(object):
         r = self._basic_post(url='instantaneous', data="loadInstantaneous")
         return r.json()
 
+    def active_power(self):
+        """
+        Takes the sum of all instantaneous active power values
+        Returns them in kWh
+
+        Returns
+        -------
+        float
+        """
+        inst = self.load_instantaneous()
+        values = [float(i['value']) for i in inst if i['key'].endswith('ActivePower')]
+        return sum(values) / 1000
+
     def restart(self):
         """
         Returns
