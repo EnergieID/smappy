@@ -32,12 +32,11 @@ Aggregation: 1 = 5 min values (only available for the last 14 days), 2 = hourly 
 `s.get_events(service_location_id, appliance_id, start, end, max_number)`
 
 ### Actuators
-NOTE: These methods are untested, so please provide feeback if you are using them, successfully or otherwise.
 
 - `s.actuator_on(self, service_location_id, actuator_id, duration)`
 - `s.actuator_off(self, service_location_id, actuator_id, duration)`
 
-duration = 300,900,1800 or 3600 , specifying the time in seconds the actuator
+duration = 300,900,1800 or 3600 - specifying the time in seconds the actuator
 should be turned on or off. Any other value results in turning on or off for an
 undetermined period of time.
 

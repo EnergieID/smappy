@@ -359,7 +359,10 @@ class Smappee(object):
         url = urljoin(URLS['servicelocation'], service_location_id,
                       "actuator", actuator_id, on_off)
         headers = {"Authorization": "Bearer {}".format(self.access_token)}
-        data = {"duration": duration}
+        if duration is not None:
+            data = {"duration": duration}
+        else:
+            data = {}
         r = requests.post(url, headers=headers, json=data)
         r.raise_for_status()
         return r
