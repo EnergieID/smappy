@@ -32,7 +32,7 @@ setup(
     version=__version__,
     description='A python API wrapper for Smappee',
     long_description=long_description,
-    url='https://github.com/energyid/smappy',
+    url='https://github.com/energieid/smappy',
     author='EnergieID.be',
     author_email='jan@energieid.be',
     license='MIT',

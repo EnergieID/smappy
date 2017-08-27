@@ -179,7 +179,8 @@ class Smappee(object):
         service_location_id : int
         start : int | dt.datetime | pd.Timestamp
         end : int | dt.datetime | pd.Timestamp
-            start and end support epoch, datetime and Pandas Timestamp
+            start and end support epoch (in milliseconds),
+            datetime and Pandas Timestamp
         aggregation : int
             1 = 5 min values (only available for the last 14 days)
             2 = hourly values
@@ -208,7 +209,8 @@ class Smappee(object):
         sensor_id : int
         start : int | dt.datetime | pd.Timestamp
         end : int | dt.datetime | pd.Timestamp
-            start and end support epoch, datetime and Pandas Timestamp
+            start and end support epoch (in milliseconds),
+            datetime and Pandas Timestamp
             timezone-naive datetimes are assumed to be in UTC
         aggregation : int
             1 = 5 min values (only available for the last 14 days)
@@ -267,7 +269,8 @@ class Smappee(object):
         appliance_id : int
         start : int | dt.datetime | pd.Timestamp
         end : int | dt.datetime | pd.Timestamp
-            start and end support epoch, datetime and Pandas Timestamp
+            start and end support epoch (in milliseconds),
+            datetime and Pandas Timestamp
             timezone-naive datetimes are assumed to be in UTC
         max_number : int, optional
             The maximum number of events that should be returned by this query
@@ -379,6 +382,7 @@ class Smappee(object):
         start : dt.datetime | int
         end : dt.datetime | int
             timezone-naive datetimes are assumed to be in UTC
+            epoch timestamps need to be in milliseconds
         aggregation : int
         sensor_id : int, optional
             If a sensor id is passed, api method get_sensor_consumption will
@@ -442,7 +446,7 @@ class Smappee(object):
         elif isinstance(time, int):
             return time
         else:
-            raise NotImplementedError("Time format not supported. Use epochs,\
+            raise NotImplementedError("Time format not supported. Use milliseconds since epoch,\
                                         Datetime or Pandas Datetime")
 
 
