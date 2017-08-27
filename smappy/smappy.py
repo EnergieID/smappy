@@ -2,9 +2,10 @@ import requests
 import datetime as dt
 from functools import wraps
 import pytz
+import numbers
 
 __title__ = "smappy"
-__version__ = "0.2.11"
+__version__ = "0.2.12"
 __author__ = "EnergieID.be"
 __license__ = "MIT"
 
@@ -443,7 +444,7 @@ class Smappee(object):
             if time.tzinfo is None:
                 time = time.replace(tzinfo=pytz.UTC)
             return int(time.timestamp() * 1e3)
-        elif isinstance(time, int):
+        elif isinstance(time, numbers.Number):
             return time
         else:
             raise NotImplementedError("Time format not supported. Use milliseconds since epoch,\
