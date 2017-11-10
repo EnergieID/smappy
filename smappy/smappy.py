@@ -535,7 +535,7 @@ class LocalSmappee(object):
         -------
         dict
         """
-        r = self._basic_post(url='reportInstantaneousValues')
+        r = self._basic_get(url='reportInstantaneousValues')
         return r.json()
 
     def load_instantaneous(self):
