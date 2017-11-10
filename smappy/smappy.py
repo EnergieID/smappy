@@ -535,7 +535,7 @@ class LocalSmappee(object):
         -------
         dict
         """
-        r = self._basic_post(url='reportInstantaneousValues')
+        r = self._basic_get(url='reportInstantaneousValues')
         return r.json()
 
     def load_instantaneous(self):
@@ -559,6 +559,18 @@ class LocalSmappee(object):
         inst = self.load_instantaneous()
         values = [float(i['value']) for i in inst if i['key'].endswith('ActivePower')]
         return sum(values) / 1000
+
+    def active_cosfi(self):
+        """
+        Takes the average of all instantaneous cosfi values
+
+        Returns
+        -------
+        float
+        """
+        inst = self.load_instantaneous()
+        values = [float(i['value']) for i in inst if i['key'].endswith('Cosfi')]
+        return sum(values) / len(values)
 
     def restart(self):
         """
