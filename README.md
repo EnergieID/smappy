@@ -3,6 +3,13 @@ API wrapper for Smappee
 
 See https://smappee.atlassian.net/wiki/display/DEVAPI/API+Methods
 
+# Installation
+Via pip: `pip install smappy`, `pip3 install smappy` or `python.exe -m pip install smappy` (on windows)
+
+Via git: `git clone https://github.com/EnergieID/smappy.git`
+
+#Usage
+
 ## Create a new connection by supplying your Smappee client id and secret
 `s = smappy.Smappee(client_id, client_secret)`
 
