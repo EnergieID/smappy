@@ -8,7 +8,7 @@ Via pip: `pip install smappy`, `pip3 install smappy` or `python.exe -m pip insta
 
 Via git: `git clone https://github.com/EnergieID/smappy.git`
 
-#Usage
+# Usage
 
 ## Create a new connection by supplying your Smappee client id and secret
 `s = smappy.Smappee(client_id, client_secret)`
