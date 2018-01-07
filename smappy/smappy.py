@@ -5,7 +5,7 @@ import pytz
 import numbers
 
 __title__ = "smappy"
-__version__ = "0.2.13"
+__version__ = "0.2.14"
 __author__ = "EnergieID.be"
 __license__ = "MIT"
 
