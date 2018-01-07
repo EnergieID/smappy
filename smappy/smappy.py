@@ -671,19 +671,6 @@ class LocalSmappee(object):
         """
         return self._basic_post(url='commandControlPublic', data='controlGroup')
 
-    def on_off_command_control(self, val_id):
-        """
-        Parameters
-        ----------
-        val_id : str
-
-        Returns
-        -------
-        requests.Response
-        """
-        data = "control,controlId=" + val_id
-        return self._basic_post(url='commandControlPublic', data=data)
-
     def on_command_control(self, val_id):
         """
         Parameters
