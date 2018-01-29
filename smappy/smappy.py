@@ -5,7 +5,7 @@ import pytz
 import numbers
 
 __title__ = "smappy"
-__version__ = "0.2.14"
+__version__ = "0.2.15"
 __author__ = "EnergieID.be"
 __license__ = "MIT"
 
@@ -170,7 +170,7 @@ class Smappee(object):
         return r.json()
 
     @authenticated
-    def get_consumption(self, service_location_id, start, end, aggregation):
+    def get_consumption(self, service_location_id, start, end, aggregation, raw=False):
         """
         Request Elektricity consumption and Solar production
         for a given service location.
@@ -188,6 +188,14 @@ class Smappee(object):
             3 = daily values
             4 = monthly values
             5 = quarterly values
+        raw : bool
+            default False
+            if True: Return the data "as is" from the server
+            if False: convert the 'alwaysOn' value to Wh.
+            (the server returns this value as the sum of the power,
+            measured in 5 minute blocks. This means that it is 12 times
+            higher than the consumption in Wh.
+            See https://github.com/EnergieID/smappy/issues/24)
 
         Returns
         -------
@@ -195,8 +203,14 @@ class Smappee(object):
         """
         url = urljoin(URLS['servicelocation'], service_location_id,
                       "consumption")
-        return self._get_consumption(url=url, start=start, end=end,
-                                     aggregation=aggregation)
+        d = self._get_consumption(url=url, start=start, end=end,
+                                  aggregation=aggregation)
+        if not raw:
+            for block in d['consumptions']:
+                if 'alwaysOn' not in block.keys():
+                    break
+                block.update({'alwaysOn': block['alwaysOn'] / 12})
+        return d
 
     @authenticated
     def get_sensor_consumption(self, service_location_id, sensor_id, start,
@@ -372,7 +386,8 @@ class Smappee(object):
         return r
 
     def get_consumption_dataframe(self, service_location_id, start, end,
-                                  aggregation, sensor_id=None, localize=False):
+                                  aggregation, sensor_id=None, localize=False,
+                                  raw=False):
         """
         Extends get_consumption() AND get_sensor_consumption(),
         parses the results in a Pandas DataFrame
@@ -395,6 +410,14 @@ class Smappee(object):
             default returns timestamps in UTC
             if True, timezone is fetched from service location info and
             Data Frame is localized
+        raw : bool
+            default False
+            if True: Return the data "as is" from the server
+            if False: convert the 'alwaysOn' value to Wh.
+            (the server returns this value as the sum of the power,
+            measured in 5 minute blocks. This means that it is 12 times
+            higher than the consumption in Wh.
+            See https://github.com/EnergieID/smappy/issues/24)
 
         Returns
         -------
@@ -405,7 +428,7 @@ class Smappee(object):
         if sensor_id is None:
             data = self.get_consumption(
                 service_location_id=service_location_id, start=start,
-                end=end, aggregation=aggregation)
+                end=end, aggregation=aggregation, raw=raw)
             consumptions = data['consumptions']
         else:
             data = self.get_sensor_consumption(
