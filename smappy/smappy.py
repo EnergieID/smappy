@@ -10,8 +10,8 @@ __author__ = "EnergieID.be"
 __license__ = "MIT"
 
 URLS = {
-    'token': 'https://app1pub.smappee.net/dev/v1/oauth2/token',
-    'servicelocation': 'https://app1pub.smappee.net/dev/v1/servicelocation'
+    'token': 'https://app1pub.smappee.net/dev/v2/oauth2/token',
+    'servicelocation': 'https://app1pub.smappee.net/dev/v2/servicelocation'
 }
 
 
